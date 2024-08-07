@@ -11,21 +11,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolvers = void 0;
 const db_1 = require("./db");
-// interface User {
-//   id: string;
-//   coins: number;
-// }
 exports.resolvers = {
     Query: {
         getCoins: (_1, _a) => __awaiter(void 0, [_1, _a], void 0, function* (_, { userId }) {
-            console.log("userId", userId);
             const { data, error } = yield db_1.supabase
                 .from('users')
                 .select('coins')
-                .eq('id', 'user2')
-                .single();
-            console.log('Data:', data);
-            console.log('Error:', error);
+                .eq('id', userId);
             if (error) {
                 console.error('Error fetching coins:', error);
                 throw new Error('Error fetching user data.');
@@ -35,6 +27,9 @@ exports.resolvers = {
     },
     Mutation: {
         addCoins: (_1, _a) => __awaiter(void 0, [_1, _a], void 0, function* (_, { userId, amount }) {
+            if (amount <= 0) {
+                throw new Error('Invalid amount. Must be a positive number.');
+            }
             const { data, error } = yield db_1.supabase
                 .from('users')
                 .upsert({ id: userId, coins: amount }, { onConflict: 'id' });
